@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 
 import MoviesList from "./components/MoviesList";
 import "./App.css";
@@ -7,7 +7,8 @@ function App() {
   const [movie, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  async function movieData() {
+
+  const movieData = useCallback(async () => {
     setLoading(true);
     setError(null);
     //to clear the previous error
@@ -32,7 +33,11 @@ function App() {
     }
     setLoading(false);
     //once the setMoives function is completed, we don't want to excute the setLoading function
-  }
+  }, []);
+
+  useEffect(() => {
+    movieData();
+  }, [movieData]);
 
   let content = <p>No Movies Found</p>;
   if (movie.length > 0) {
