@@ -13,21 +13,25 @@ function App() {
     setError(null);
     //to clear the previous error
     try {
-      const response = await fetch("https://swapi.dev/api/films");
+      const response = await fetch(
+        "https://react-movie-project-c8d34-default-rtdb.firebaseio.com/movies.json"
+      );
       if (!response.ok) {
         throw new Error("Something went wrong ....Retrying");
       }
       const data = await response.json();
-      const transformedMovies = data.results.map((item) => {
-        return {
-          id: item.episode_id,
-          title: item.title,
-          openingText: item.opening_crawl,
-          releaseDate: item.release_date,
-        };
-      });
-      setMovies(transformedMovies);
-      //function available by browser for fetch api call
+
+      const loadedMovie = [];
+      for (const key in data) {
+        loadedMovie.push({
+          id: key,
+          title: data[key].mtitle,
+          openingText: data[key].mtext,
+          releaseDate: data[key].mdate,
+        });
+      }
+      setMovies(loadedMovie);
+      //fetch function is available by browser for api call
     } catch (error) {
       setError(error.message);
     }
@@ -49,10 +53,26 @@ function App() {
   if (loading) {
     content = <p>Bus bhai 1 min me aa rha hu...</p>;
   }
+
+  async function movieFormHandler(NewMovieObj) {
+    const response = await fetch(
+      "https://react-movie-project-c8d34-default-rtdb.firebaseio.com/movies.json",
+      {
+        method: "POST",
+        body: JSON.stringify(NewMovieObj),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        //headers needed in some data base only.
+      }
+    );
+    const data = await response.json();
+    console.log(data);
+  }
   return (
     <React.Fragment>
       <section>
-        <UserForm />
+        <UserForm onAddMovies={movieFormHandler} />
       </section>
       <section>
         <button onClick={movieData}>Fetch Movies</button>
